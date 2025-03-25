@@ -20,6 +20,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
   const { triggerConfetti } = useConfetti(10000);
 
   // Timer state
+  const [hours, setHours] = useState("00");
   const [minutes, setMinutes] = useState("00");
   const [seconds, setSeconds] = useState("00");
 
@@ -77,9 +78,11 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
 
     // Update the timer display
     const updateTimer = () => {
-      const mins = Math.floor(remainingSeconds / 60);
+      const hrs = Math.floor(remainingSeconds / 3600);
+      const mins = Math.floor((remainingSeconds % 3600) / 60);
       const secs = Math.floor(remainingSeconds % 60);
 
+      setHours(hrs.toString().padStart(2, "0"));
       setMinutes(mins.toString().padStart(2, "0"));
       setSeconds(secs.toString().padStart(2, "0"));
 
@@ -110,14 +113,18 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
   }
 
   return (
-    <div className="bg-[#476520] rounded-lg p-6 max-w-[300px] mx-auto">
+    <div className="bg-[#476520] rounded-lg p-6 max-w-[400px] mx-auto">
       {loading ? (
         <div className="text-center text-white">Loading current block...</div>
       ) : error ? (
         <div className="text-center text-red-200">{error}</div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="text-4xl font-bold text-[#476520]">{hours}</div>
+              <div className="text-sm text-gray-600">Hours</div>
+            </div>
             <div className="bg-white rounded-lg p-4 text-center">
               <div className="text-4xl font-bold text-[#476520]">{minutes}</div>
               <div className="text-sm text-gray-600">Minutes</div>
