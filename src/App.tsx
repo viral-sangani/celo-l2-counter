@@ -2,10 +2,12 @@ import { onValue, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { BlockCountdownTimer } from "./components/BlockCountdownTimer";
+import { Confetti } from "./components/Confetti";
 import { Day1Partners } from "./components/Day1Partners";
 import { L2MigrationStage } from "./components/L2MigrationStage";
 import { CONSTANTS } from "./constants";
 import { database } from "./firebase";
+import { useConfetti } from "./hooks/useConfetti";
 import { useLatestBlock } from "./hooks/useLatestBlock";
 
 function App() {
@@ -14,6 +16,7 @@ function App() {
   const [showTimers, setShowTimers] = useState(true);
   const [isHardforkReached, setIsHardforkReached] = useState(false);
   const [isL2Live, setIsL2Live] = useState(false);
+  const { isActive: isConfettiActive, triggerConfetti } = useConfetti(10000);
 
   // Check if we need to show the timers based on current block
   useEffect(() => {
@@ -32,26 +35,34 @@ function App() {
     const unsubscribeIsL2Live = onValue(isL2LiveRef, (snapshot) => {
       if (snapshot.exists()) {
         const isLiveValue = snapshot.val();
+        let newIsL2Live = false;
 
         // If IsL2Live is a boolean value directly
         if (typeof isLiveValue === "boolean") {
-          setIsL2Live(isLiveValue);
+          newIsL2Live = isLiveValue;
         }
         // If IsL2Live is an object with a value property
         else if (isLiveValue && typeof isLiveValue.value === "boolean") {
-          setIsL2Live(isLiveValue.value);
+          newIsL2Live = isLiveValue.value;
         }
         // Any other truthy value
         else if (isLiveValue) {
-          setIsL2Live(true);
+          newIsL2Live = true;
         }
+
+        // If isL2Live changed from false to true, trigger confetti
+        if (newIsL2Live && !isL2Live) {
+          triggerConfetti();
+        }
+
+        setIsL2Live(newIsL2Live);
       }
     });
 
     return () => {
       unsubscribeIsL2Live();
     };
-  }, []);
+  }, [isL2Live, triggerConfetti]);
 
   const handleBlockUpdate = (block: number | null) => {
     if (block && block >= CONSTANTS.TARGET_BLOCK) {
@@ -66,6 +77,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#FCF6F1]">
+      <Confetti isActive={isConfettiActive} duration={10000} />
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <img
@@ -119,7 +131,7 @@ function App() {
                   </a>
                 </div>
               </div>
-              
+
               <div className="mt-8">
                 <Day1Partners />
               </div>

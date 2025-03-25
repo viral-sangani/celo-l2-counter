@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPublicClient, http } from "viem";
 import { celo } from "viem/chains";
 import { CONSTANTS } from "../constants";
+import { useConfetti } from "../hooks/useConfetti";
 
 interface BlockCountdownTimerProps {
   onTimerEnd?: () => void;
@@ -16,6 +17,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
+  const { triggerConfetti } = useConfetti(10000);
 
   // Timer state
   const [minutes, setMinutes] = useState("00");
@@ -38,6 +40,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
         // Check if we've already passed the target block
         if (blockNum >= CONSTANTS.TARGET_BLOCK) {
           setIsCompleted(true);
+          triggerConfetti();
           if (onTimerEnd) onTimerEnd();
         }
 
@@ -52,7 +55,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
     };
 
     fetchInitialBlock();
-  }, [onTimerEnd, onBlockUpdate]);
+  }, [onTimerEnd, onBlockUpdate, triggerConfetti]);
 
   // Setup countdown timer
   useEffect(() => {
@@ -65,6 +68,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
     // If no time remaining, mark as completed
     if (totalSeconds <= 0) {
       setIsCompleted(true);
+      triggerConfetti();
       if (onTimerEnd) onTimerEnd();
       return;
     }
@@ -86,6 +90,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
         remainingSeconds = 0;
         clearInterval(interval);
         setIsCompleted(true);
+        triggerConfetti();
         if (onTimerEnd) onTimerEnd();
       }
     };
@@ -97,7 +102,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [currentBlock, isCompleted, onTimerEnd]);
+  }, [currentBlock, isCompleted, onTimerEnd, triggerConfetti]);
 
   // If completed or error, don't render
   if (isCompleted) {
