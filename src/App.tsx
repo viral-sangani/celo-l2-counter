@@ -33,28 +33,35 @@ function App() {
     console.log("App.tsx: Attempting to fetch IsL2Live from Firebase");
     const isL2LiveRef = ref(database, "IsL2Live");
 
-    const unsubscribeIsL2Live = onValue(isL2LiveRef, (snapshot) => {
-      console.log("App.tsx: IsL2Live snapshot received:", snapshot.exists() ? "Data exists" : "No data");
-      if (snapshot.exists()) {
-        const isLiveValue = snapshot.val();
-        console.log("App.tsx: IsL2Live value:", isLiveValue);
-        
-        // If IsL2Live is a boolean value directly
-        if (typeof isLiveValue === 'boolean') {
-          setIsL2Live(isLiveValue);
-        } 
-        // If IsL2Live is an object with a value property
-        else if (isLiveValue && typeof isLiveValue.value === 'boolean') {
-          setIsL2Live(isLiveValue.value);
+    const unsubscribeIsL2Live = onValue(
+      isL2LiveRef,
+      (snapshot) => {
+        console.log(
+          "App.tsx: IsL2Live snapshot received:",
+          snapshot.exists() ? "Data exists" : "No data"
+        );
+        if (snapshot.exists()) {
+          const isLiveValue = snapshot.val();
+          console.log("App.tsx: IsL2Live value:", isLiveValue);
+
+          // If IsL2Live is a boolean value directly
+          if (typeof isLiveValue === "boolean") {
+            setIsL2Live(isLiveValue);
+          }
+          // If IsL2Live is an object with a value property
+          else if (isLiveValue && typeof isLiveValue.value === "boolean") {
+            setIsL2Live(isLiveValue.value);
+          }
+          // Any other truthy value
+          else if (isLiveValue) {
+            setIsL2Live(true);
+          }
         }
-        // Any other truthy value
-        else if (isLiveValue) {
-          setIsL2Live(true);
-        }
+      },
+      (error) => {
+        console.error("App.tsx: Error fetching IsL2Live:", error);
       }
-    }, (error) => {
-      console.error("App.tsx: Error fetching IsL2Live:", error);
-    });
+    );
 
     return () => {
       unsubscribeIsL2Live();
@@ -67,34 +74,48 @@ function App() {
     const stagesRef = ref(database, "migrationStages");
     const l2LiveRef = ref(database, "celoL2Live");
 
-    const unsubscribeStages = onValue(stagesRef, (snapshot) => {
-      console.log("App.tsx: migrationStages snapshot received:", snapshot.exists() ? "Data exists" : "No data");
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        console.log("App.tsx: migrationStages data:", data);
-        setStages(Object.values(data));
-      }
-    }, (error) => {
-      console.error("App.tsx: Error fetching migrationStages:", error);
-    });
-
-    const unsubscribeL2Live = onValue(l2LiveRef, (snapshot) => {
-      console.log("App.tsx: celoL2Live snapshot received:", snapshot.exists() ? "Data exists" : "No data");
-      if (snapshot.exists()) {
-        const l2LiveData = snapshot.val() as CeloL2Live;
-        console.log("App.tsx: celoL2Live data:", l2LiveData);
-        if (l2LiveData.is_live) {
-          setStages((prevStages) =>
-            prevStages.map((stage) => ({
-              ...stage,
-              status: "Complete",
-            }))
-          );
+    const unsubscribeStages = onValue(
+      stagesRef,
+      (snapshot) => {
+        console.log(
+          "App.tsx: migrationStages snapshot received:",
+          snapshot.exists() ? "Data exists" : "No data"
+        );
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          console.log("App.tsx: migrationStages data:", data);
+          setStages(Object.values(data));
         }
+      },
+      (error) => {
+        console.error("App.tsx: Error fetching migrationStages:", error);
       }
-    }, (error) => {
-      console.error("App.tsx: Error fetching celoL2Live:", error);
-    });
+    );
+
+    const unsubscribeL2Live = onValue(
+      l2LiveRef,
+      (snapshot) => {
+        console.log(
+          "App.tsx: celoL2Live snapshot received:",
+          snapshot.exists() ? "Data exists" : "No data"
+        );
+        if (snapshot.exists()) {
+          const l2LiveData = snapshot.val() as CeloL2Live;
+          console.log("App.tsx: celoL2Live data:", l2LiveData);
+          if (l2LiveData.is_live) {
+            setStages((prevStages) =>
+              prevStages.map((stage) => ({
+                ...stage,
+                status: "Complete",
+              }))
+            );
+          }
+        }
+      },
+      (error) => {
+        console.error("App.tsx: Error fetching celoL2Live:", error);
+      }
+    );
 
     return () => {
       unsubscribeStages();
@@ -132,9 +153,9 @@ function App() {
             <>
               {/* Block Countdown Timer - initial fetch + countdown */}
               <BlockCountdownTimer onTimerEnd={handleTimerEnd} />
-              
+
               {/* Real-time Block Status - updates every 5 seconds */}
-              <div className="bg-white rounded-lg p-8 shadow-lg">
+              <div className="bg-white p-8 shadow-lg">
                 <h2 className="text-2xl font-bold text-[#476520] mb-6 text-center">
                   Live Block Status
                 </h2>
@@ -156,21 +177,21 @@ function App() {
               </div>
             </>
           )}
-          
+
           {/* Show L2 migration stages when hardfork is reached but IsL2Live is false */}
           {hardforkReached && !isL2Live && (
             <>
               {/* Hardfork reached message */}
-              <div className="bg-[#476520] text-white rounded-lg p-8 shadow-lg text-center">
+              <div className="bg-[#476520] text-white p-8 shadow-lg text-center">
                 <h2 className="text-2xl font-bold mb-4">
                   Celo L2 Hardfork Block Reached
                 </h2>
                 <p className="text-lg">
-                  The Celo L2 hardfork block has been reached.
-                  Migration process is now in progress. Follow the steps below.
+                  The Celo L2 hardfork block has been reached. Migration process
+                  is now in progress. Follow the steps below.
                 </p>
               </div>
-              
+
               {/* Real-time L2 migration stages */}
               <L2MigrationStage />
             </>
@@ -178,27 +199,27 @@ function App() {
 
           {/* Show L2 Live message when IsL2Live is true */}
           {isL2Live && (
-            <div className="bg-[#476520] text-white rounded-lg p-8 shadow-lg text-center">
+            <div className="bg-[#476520] text-white p-8 shadow-lg text-center">
               <h2 className="text-2xl font-bold mb-4">
                 Celo L2 Migration Complete! 🎉
               </h2>
               <p className="text-lg">
-                The Celo L2 migration has been successfully completed.
-                Celo is now live as an Ethereum Layer 2!
+                The Celo L2 migration has been successfully completed. Celo is
+                now live as an Ethereum Layer 2!
               </p>
               <div className="mt-6 flex justify-center">
-                <a 
-                  href="https://explorer.celo.org" 
-                  target="_blank" 
+                <a
+                  href="https://explorer.celo.org"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white text-[#476520] font-bold px-6 py-3 rounded shadow hover:bg-gray-100 transition-colors"
+                  className="bg-white text-[#476520] font-bold px-6 py-3 shadow hover:bg-gray-100 transition-colors"
                 >
                   Explore Celo L2
                 </a>
               </div>
             </div>
           )}
-          
+
           {/* Only show MigrationStages when IsL2Live is false */}
           {!isL2Live && <MigrationStages stages={stages} />}
         </div>
@@ -210,7 +231,7 @@ function App() {
           <BenefitsSection />
         </div>
 
-        <div className="bg-[#E7E3D4] rounded-lg p-8 shadow-lg">
+        <div className="bg-[#E7E3D4] p-8">
           <h2 className="text-2xl font-bold text-[#476520] mb-6">
             Technical Specifications
           </h2>

@@ -87,7 +87,7 @@ export const L2MigrationStage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg p-8 shadow-lg text-center">
+      <div className="bg-white p-8 shadow-lg text-center">
         <h2 className="text-2xl font-bold text-[#476520] mb-6">
           L2 Migration Progress
         </h2>
@@ -103,7 +103,7 @@ export const L2MigrationStage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg p-8 shadow-lg">
+      <div className="bg-white p-8 shadow-lg">
         <h2 className="text-2xl font-bold text-[#476520] mb-6 text-center">
           L2 Migration Progress
         </h2>
@@ -126,7 +126,7 @@ export const L2MigrationStage: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg p-8 shadow-lg">
+    <div className="bg-white p-8 shadow-lg">
       <h2 className="text-2xl font-bold text-[#476520] mb-8 text-center">
         L2 Migration Progress
       </h2>
