@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPublicClient, http } from "viem";
 import { celo } from "viem/chains";
-import { CONSTANTS } from "../constants";
 
 export const useLatestBlock = () => {
-  const [latestBlock, setLatestBlock] = useState<number>(CONSTANTS.CURRENT_BLOCK);
+  const [latestBlock, setLatestBlock] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 

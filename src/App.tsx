@@ -1,6 +1,7 @@
 import { onValue, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import { BenefitsSection } from "./components/BenefitsSection";
+import { BlockCountdownTimer } from "./components/BlockCountdownTimer";
 import { BlockTimer } from "./components/BlockTimer";
 import { MigrationStages } from "./components/MigrationStages";
 import { CONSTANTS } from "./constants";
@@ -12,6 +13,16 @@ function App() {
   // Use the hook to get the latest block
   const { latestBlock, isLoading, error } = useLatestBlock();
   const [stages, setStages] = useState<MigrationStage[]>([]);
+  const [showTimers, setShowTimers] = useState(true);
+
+  // Check if we need to show the timers based on current block
+  useEffect(() => {
+    if (!isLoading && !error && latestBlock) {
+      if (latestBlock >= CONSTANTS.TARGET_BLOCK) {
+        setShowTimers(false);
+      }
+    }
+  }, [latestBlock, isLoading, error]);
 
   // Load migration stages from Firebase
   useEffect(() => {
@@ -44,6 +55,10 @@ function App() {
     };
   }, []);
 
+  const handleTimerEnd = () => {
+    setShowTimers(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#FCF6F1]">
       <div className="container mx-auto px-4 py-12">
@@ -64,26 +79,49 @@ function App() {
         </div>
 
         <div className="grid gap-8 mb-12">
-          <div className="bg-white rounded-lg p-8 shadow-lg">
-            <h2 className="text-2xl font-bold text-[#476520] mb-6">
-              L2 Hardfork Status
-            </h2>
-            {isLoading ? (
-              <div className="text-center text-gray-600">
-                Loading current block...
+          {/* Only show timers if not completed */}
+          {showTimers && (
+            <>
+              {/* Block Countdown Timer - initial fetch + countdown */}
+              <BlockCountdownTimer onTimerEnd={handleTimerEnd} />
+              
+              {/* Real-time Block Status - updates every 5 seconds */}
+              <div className="bg-white rounded-lg p-8 shadow-lg">
+                <h2 className="text-2xl font-bold text-[#476520] mb-6 text-center">
+                  Live Block Status
+                </h2>
+                {isLoading ? (
+                  <div className="text-center text-gray-600">
+                    Loading current block...
+                  </div>
+                ) : error ? (
+                  <div className="text-center text-red-600">
+                    Error fetching current block: {error.message}
+                  </div>
+                ) : (
+                  <BlockTimer
+                    currentBlock={latestBlock ?? 0}
+                    targetBlock={CONSTANTS.TARGET_BLOCK}
+                    averageBlockTime={CONSTANTS.AVERAGE_BLOCK_TIME}
+                  />
+                )}
               </div>
-            ) : error ? (
-              <div className="text-center text-red-600">
-                Error fetching current block: {error.message}
-              </div>
-            ) : (
-              <BlockTimer
-                currentBlock={latestBlock ?? CONSTANTS.CURRENT_BLOCK}
-                targetBlock={CONSTANTS.TARGET_BLOCK}
-                averageBlockTime={CONSTANTS.AVERAGE_BLOCK_TIME}
-              />
-            )}
-          </div>
+            </>
+          )}
+          
+          {/* If timers are hidden, show completion message */}
+          {!showTimers && (
+            <div className="bg-[#476520] text-white rounded-lg p-8 shadow-lg text-center">
+              <h2 className="text-2xl font-bold mb-4">
+                Celo L2 Hardfork Complete! 🎉
+              </h2>
+              <p className="text-lg">
+                The Celo L2 migration has successfully reached its target block.
+                Celo is now operating as an Ethereum Layer 2!
+              </p>
+            </div>
+          )}
+          
           <MigrationStages stages={stages} />
         </div>
 
