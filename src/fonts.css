@@ -1,0 +1,90 @@
+/* GT Alpina Standard */
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Light-Trial.woff2")
+    format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Light-Italic-Trial.woff2")
+    format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Regular-Trial.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Regular-Italic-Trial.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Medium-Trial.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Medium-Italic-Trial.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Bold-Trial.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina";
+  src: url("./static/fonts/GT-Alpina-Standard-Bold-Italic-Trial.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* GT Alpina Typewriter for monospace */
+@font-face {
+  font-family: "GT Alpina Typewriter";
+  src: url("./static/fonts/GT-Alpina-Typewriter-Regular-Trial.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GT Alpina Typewriter";
+  src: url("./static/fonts/GT-Alpina-Typewriter-Bold-Trial.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
