@@ -2,6 +2,7 @@ import { onValue, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { BlockCountdownTimer } from "./components/BlockCountdownTimer";
+import { Day1Partners } from "./components/Day1Partners";
 import { L2MigrationStage } from "./components/L2MigrationStage";
 import { CONSTANTS } from "./constants";
 import { database } from "./firebase";
@@ -98,25 +99,31 @@ function App() {
 
           {/* Show L2 Live message when IsL2Live is true */}
           {isL2Live && (
-            <div className="bg-[#476520] text-white p-8 shadow-lg text-center">
-              <h2 className="text-2xl font-bold mb-4">
-                Celo L2 Migration Complete! 🎉
-              </h2>
-              <p className="text-lg">
-                The Celo L2 migration has been successfully completed. Celo is
-                now live as an Ethereum Layer 2!
-              </p>
-              <div className="mt-6 flex justify-center">
-                <a
-                  href="https://explorer.celo.org"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white text-[#476520] font-bold px-6 py-3 shadow hover:bg-gray-100 transition-colors"
-                >
-                  Explore Celo L2
-                </a>
+            <>
+              <div className="bg-[#476520] text-white p-8 shadow-lg text-center">
+                <h2 className="text-2xl font-bold mb-4">
+                  Celo L2 Migration Complete! 🎉
+                </h2>
+                <p className="text-lg">
+                  The Celo L2 migration has been successfully completed. Celo is
+                  now live as an Ethereum Layer 2!
+                </p>
+                <div className="mt-6 flex justify-center">
+                  <a
+                    href="https://explorer.celo.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white text-[#476520] font-bold px-6 py-3 shadow hover:bg-gray-100 transition-colors"
+                  >
+                    Explore Celo L2
+                  </a>
+                </div>
               </div>
-            </div>
+              
+              <div className="mt-8">
+                <Day1Partners />
+              </div>
+            </>
           )}
         </div>
 

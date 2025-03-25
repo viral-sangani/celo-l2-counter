@@ -1,2 +1,6 @@
 node_modules
 .env
+venv
+firebase-adminsdk.json
+update_day1_partners.py
+Day1Partners.txt
