@@ -5,10 +5,12 @@ import { CONSTANTS } from "../constants";
 
 interface BlockCountdownTimerProps {
   onTimerEnd?: () => void;
+  onBlockUpdate?: (block: number | null) => void;
 }
 
 export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
   onTimerEnd,
+  onBlockUpdate,
 }) => {
   const [currentBlock, setCurrentBlock] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,6 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   // Timer state
-  const [hours, setHours] = useState("00");
   const [minutes, setMinutes] = useState("00");
   const [seconds, setSeconds] = useState("00");
 
@@ -32,6 +33,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
         const blockNumber = await client.getBlockNumber();
         const blockNum = Number(blockNumber);
         setCurrentBlock(blockNum);
+        if (onBlockUpdate) onBlockUpdate(blockNum);
 
         // Check if we've already passed the target block
         if (blockNum >= CONSTANTS.TARGET_BLOCK) {
@@ -45,11 +47,12 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
         setLoading(false);
         setIsCompleted(true);
         if (onTimerEnd) onTimerEnd();
+        if (onBlockUpdate) onBlockUpdate(null);
       }
     };
 
     fetchInitialBlock();
-  }, [onTimerEnd]);
+  }, [onTimerEnd, onBlockUpdate]);
 
   // Setup countdown timer
   useEffect(() => {
@@ -70,11 +73,9 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
 
     // Update the timer display
     const updateTimer = () => {
-      const hrs = Math.floor(remainingSeconds / 3600);
-      const mins = Math.floor((remainingSeconds % 3600) / 60);
+      const mins = Math.floor(remainingSeconds / 60);
       const secs = Math.floor(remainingSeconds % 60);
 
-      setHours(hrs.toString().padStart(2, "0"));
       setMinutes(mins.toString().padStart(2, "0"));
       setSeconds(secs.toString().padStart(2, "0"));
 
@@ -104,46 +105,29 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
   }
 
   return (
-    <div className="bg-white p-8 shadow-lg">
-      <h2 className="text-2xl font-bold text-[#476520] mb-6 text-center">
-        Celo L2 Hardfork Countdown
-      </h2>
-
+    <div className="bg-[#476520] rounded-lg p-6 max-w-[300px] mx-auto">
       {loading ? (
-        <div className="text-center text-gray-600">
-          Loading current block...
-        </div>
+        <div className="text-center text-white">Loading current block...</div>
       ) : error ? (
-        <div className="text-center text-red-600">{error}</div>
+        <div className="text-center text-red-200">{error}</div>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mb-8">
-            <div className="bg-[#476520] p-4 text-white text-center">
-              <div className="text-3xl font-bold">{hours}</div>
-              <div className="text-sm">Hours</div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="text-4xl font-bold text-[#476520]">{minutes}</div>
+              <div className="text-sm text-gray-600">Minutes</div>
             </div>
-            <div className="bg-[#476520] p-4 text-white text-center">
-              <div className="text-3xl font-bold">{minutes}</div>
-              <div className="text-sm">Minutes</div>
-            </div>
-            <div className="bg-[#476520] p-4 text-white text-center">
-              <div className="text-3xl font-bold">{seconds}</div>
-              <div className="text-sm">Seconds</div>
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="text-4xl font-bold text-[#476520]">{seconds}</div>
+              <div className="text-sm text-gray-600">Seconds</div>
             </div>
           </div>
 
-          <div className="text-center">
-            <p className="font-medium text-gray-700">
-              Blocks remaining:{" "}
-              <span className="text-[#476520]">
-                {currentBlock
-                  ? Math.max(
-                      0,
-                      CONSTANTS.TARGET_BLOCK - currentBlock
-                    ).toLocaleString()
-                  : "0"}
-              </span>
+          <div className="text-center text-white">
+            <p className="text-sm mb-1">
+              Hardfork Block Height: {CONSTANTS.TARGET_BLOCK.toLocaleString()}
             </p>
+            <p className="text-sm">March 26, 2025, 3:00 AM UTC</p>
           </div>
         </>
       )}

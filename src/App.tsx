@@ -2,7 +2,6 @@ import { onValue, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { BlockCountdownTimer } from "./components/BlockCountdownTimer";
-import { BlockTimer } from "./components/BlockTimer";
 import { L2MigrationStage } from "./components/L2MigrationStage";
 import { MigrationStages } from "./components/MigrationStages";
 import { CONSTANTS } from "./constants";
@@ -14,6 +13,7 @@ function App() {
   // Use the hook to get the latest block
   const { latestBlock, isLoading, error } = useLatestBlock();
   const [stages, setStages] = useState<MigrationStage[]>([]);
+  const [currentBlock, setCurrentBlock] = useState<number | null>(null);
   const [showTimers, setShowTimers] = useState(true);
   const [hardforkReached, setHardforkReached] = useState(false);
   const [isL2Live, setIsL2Live] = useState(false);
@@ -123,6 +123,10 @@ function App() {
     };
   }, []);
 
+  const handleBlockUpdate = (block: number | null) => {
+    setCurrentBlock(block);
+  };
+
   const handleTimerEnd = () => {
     setShowTimers(false);
     setHardforkReached(true);
@@ -138,7 +142,7 @@ function App() {
             className="h-16 mx-auto mb-8"
           />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Celo L2 Migration Status
+            Celo L2 Migration Countdown
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Celo is transitioning from a standalone EVM-compatible Layer 1
@@ -152,29 +156,10 @@ function App() {
           {showTimers && (
             <>
               {/* Block Countdown Timer - initial fetch + countdown */}
-              <BlockCountdownTimer onTimerEnd={handleTimerEnd} />
-
-              {/* Real-time Block Status - updates every 5 seconds */}
-              <div className="bg-white p-8 shadow-lg">
-                <h2 className="text-2xl font-bold text-[#476520] mb-6 text-center">
-                  Live Block Status
-                </h2>
-                {isLoading ? (
-                  <div className="text-center text-gray-600">
-                    Loading current block...
-                  </div>
-                ) : error ? (
-                  <div className="text-center text-red-600">
-                    Error fetching current block: {error.message}
-                  </div>
-                ) : (
-                  <BlockTimer
-                    currentBlock={latestBlock ?? 0}
-                    targetBlock={CONSTANTS.TARGET_BLOCK}
-                    averageBlockTime={CONSTANTS.AVERAGE_BLOCK_TIME}
-                  />
-                )}
-              </div>
+              <BlockCountdownTimer
+                onBlockUpdate={handleBlockUpdate}
+                onTimerEnd={handleTimerEnd}
+              />
             </>
           )}
 
@@ -221,12 +206,16 @@ function App() {
           )}
 
           {/* Only show MigrationStages when IsL2Live is false */}
-          {!isL2Live && <MigrationStages stages={stages} />}
+          {!isL2Live &&
+            currentBlock &&
+            currentBlock >= CONSTANTS.TARGET_BLOCK && (
+              <MigrationStages stages={stages} />
+            )}
         </div>
 
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-            Benefits of L2 Migration
+            About Celo L2
           </h2>
           <BenefitsSection />
         </div>
