@@ -6,6 +6,11 @@ export const Day1Partners = () => {
 
   // Helper function to divide partners into columns
   const getColumnsData = (partners: string[], columnCount: number = 4) => {
+    // For mobile (only 2 columns)
+    if (window.innerWidth < 768) {
+      columnCount = 2;
+    }
+    
     const result: string[][] = Array.from({ length: columnCount }, () => []);
     const itemsPerColumn = Math.ceil(partners.length / columnCount);
 
@@ -48,7 +53,7 @@ export const Day1Partners = () => {
           <h3 className="text-xl font-bold mb-4 text-[#476520]">
             L2 Migration Completed
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {completedColumns.map((column, columnIndex) => (
               <div key={`completed-col-${columnIndex}`}>
                 {column.map((partner, index) => (
@@ -72,7 +77,7 @@ export const Day1Partners = () => {
           <h3 className="text-xl font-bold mb-4 text-[#FFA15F] flex items-center">
             L2 Migration In Progress
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {pendingColumns.map((column, columnIndex) => (
               <div key={`pending-col-${columnIndex}`}>
                 {column.map((partner, index) => (

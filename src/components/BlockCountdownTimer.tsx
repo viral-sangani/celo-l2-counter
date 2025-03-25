@@ -120,18 +120,18 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
         <div className="text-center text-red-200">{error}</div>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="bg-white rounded-lg p-4 text-center">
-              <div className="text-4xl font-bold text-[#476520]">{hours}</div>
-              <div className="text-sm text-gray-600">Hours</div>
+          <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4">
+            <div className="bg-white rounded-lg p-2 md:p-4 text-center">
+              <div className="text-2xl md:text-4xl font-bold text-[#476520]">{hours}</div>
+              <div className="text-xs md:text-sm text-gray-600">Hours</div>
             </div>
-            <div className="bg-white rounded-lg p-4 text-center">
-              <div className="text-4xl font-bold text-[#476520]">{minutes}</div>
-              <div className="text-sm text-gray-600">Minutes</div>
+            <div className="bg-white rounded-lg p-2 md:p-4 text-center">
+              <div className="text-2xl md:text-4xl font-bold text-[#476520]">{minutes}</div>
+              <div className="text-xs md:text-sm text-gray-600">Minutes</div>
             </div>
-            <div className="bg-white rounded-lg p-4 text-center">
-              <div className="text-4xl font-bold text-[#476520]">{seconds}</div>
-              <div className="text-sm text-gray-600">Seconds</div>
+            <div className="bg-white rounded-lg p-2 md:p-4 text-center">
+              <div className="text-2xl md:text-4xl font-bold text-[#476520]">{seconds}</div>
+              <div className="text-xs md:text-sm text-gray-600">Seconds</div>
             </div>
           </div>
 

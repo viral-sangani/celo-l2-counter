@@ -24,14 +24,14 @@ export const BenefitsSection: React.FC = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {benefits.map((benefit, index) => (
-        <div key={index} className="bg-white p-6 border-2 border-gray-200">
-          <div className="mb-4">{benefit.icon}</div>
-          <h3 className="text-xl font-semibold text-[#476520] mb-2">
+        <div key={index} className="bg-white p-4 md:p-6 border-2 border-gray-200">
+          <div className="mb-3 md:mb-4">{benefit.icon}</div>
+          <h3 className="text-lg md:text-xl font-semibold text-[#476520] mb-1 md:mb-2">
             {benefit.title}
           </h3>
-          <p className="text-gray-600">{benefit.description}</p>
+          <p className="text-sm md:text-base text-gray-600">{benefit.description}</p>
         </div>
       ))}
     </div>

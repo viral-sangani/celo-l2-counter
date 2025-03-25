@@ -80,7 +80,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#FCF6F1]">
       <Confetti isActive={isConfettiActive} duration={10000} />
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="text-center mb-12">
           <img
             src="https://images.ctfassets.net/wr0no19kwov9/4SBboHNAVGDL6iSUBtzwf5/99bffcbe8a37dcb9a8cdb34b2b2054a4/brand-kit-wordmark-image-01.png?fm=webp&w=3840&q=70"
@@ -90,7 +90,7 @@ function App() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Celo L2 Migration Status
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto">
             Celo is transitioning from a standalone EVM-compatible Layer 1
             blockchain to an Ethereum Layer 2, enhancing security and ecosystem
             integration while maintaining our commitment to accessibility.
@@ -148,11 +148,11 @@ function App() {
           <BenefitsSection />
         </div>
 
-        <div className="bg-[#E7E3D4] p-8">
-          <h2 className="text-2xl font-bold text-[#476520] mb-6">
+        <div className="bg-[#E7E3D4] p-4 md:p-8">
+          <h2 className="text-xl md:text-2xl font-bold text-[#476520] mb-4 md:mb-6">
             Technical Specifications
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-3">Node Requirements</h3>
               <ul className="list-disc list-inside text-gray-700">
