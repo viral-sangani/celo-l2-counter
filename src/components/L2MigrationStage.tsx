@@ -93,7 +93,7 @@ export const L2MigrationStage: React.FC<L2MigrationStageProps> = ({
 
   return (
     <div className="mt-8">
-      <div className="bg-[#476520] p-8 rounded-lg text-white mb-8">
+      <div className="bg-[#476520] p-8 text-white mb-8">
         <h2 className="text-2xl font-bold mb-2">
           Celo L2 Hardfork Block Reached
         </h2>
