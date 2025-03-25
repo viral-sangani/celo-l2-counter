@@ -9,10 +9,12 @@ interface L2Stage {
 
 interface L2MigrationStageProps {
   isHardforkReached: boolean;
+  isRpcDown?: boolean;
 }
 
 export const L2MigrationStage: React.FC<L2MigrationStageProps> = ({
   isHardforkReached,
+  isRpcDown = false,
 }) => {
   const [stages, setStages] = useState<L2Stage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,19 +61,33 @@ export const L2MigrationStage: React.FC<L2MigrationStageProps> = ({
       const timer = setTimeout(() => {
         // Create a fallback entry if loading is taking too long
         if (loading && stages.length === 0) {
-          setStages([
-            {
-              name: "Migrating L1 data",
-              status: "InProgress",
-            },
-          ]);
+          // If RPC is down, show specific stages for RPC failure
+          if (isRpcDown) {
+            setStages([
+              {
+                name: "RPC Node offline - Migration in progress",
+                status: "InProgress",
+              },
+              {
+                name: "Transferring chain data to L2",
+                status: "InProgress",
+              },
+            ]);
+          } else {
+            setStages([
+              {
+                name: "Migrating L1 data",
+                status: "InProgress",
+              },
+            ]);
+          }
           setLoading(false);
         }
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [loading, stages]);
+  }, [loading, stages, isRpcDown]);
 
   if (!isHardforkReached) return null;
 
@@ -95,7 +111,9 @@ export const L2MigrationStage: React.FC<L2MigrationStageProps> = ({
     <div className="mt-8">
       <div className="bg-[#476520] p-8 text-white mb-8">
         <h2 className="text-2xl font-bold mb-2">
-          Celo L2 Hardfork Block Reached
+          {isRpcDown
+            ? "Celo L2 Migration In Progress"
+            : "Celo L2 Hardfork Block Reached"}
         </h2>
         <p className="text-lg">
           The Celo L2 hardfork block has been reached. Migration process is now

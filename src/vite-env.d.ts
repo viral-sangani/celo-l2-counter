@@ -1,5 +1,15 @@
 /// <reference types="vite/client" />
 
+// Define environment variables
+interface ImportMetaEnv {
+  readonly VITE_RPC_URL?: string;
+  // Add other environment variables as needed
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 // Declare image file types for TypeScript
 declare module '*.png' {
   const src: string;

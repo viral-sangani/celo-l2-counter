@@ -12,21 +12,27 @@ import { useLatestBlock } from "./hooks/useLatestBlock";
 
 function App() {
   // Use the hook to get the latest block
-  const { latestBlock, isLoading, error } = useLatestBlock();
+  const { latestBlock, isLoading, error, isRpcDown } = useLatestBlock();
   const [showTimers, setShowTimers] = useState(true);
   const [isHardforkReached, setIsHardforkReached] = useState(false);
   const [isL2Live, setIsL2Live] = useState(false);
   const { isActive: isConfettiActive, triggerConfetti } = useConfetti(10000);
 
-  // Check if we need to show the timers based on current block
+  // Check if we need to show the timers based on current block or RPC status
   useEffect(() => {
-    if (!isLoading && !error && latestBlock) {
-      if (latestBlock >= CONSTANTS.TARGET_BLOCK) {
-        setShowTimers(false);
-        setIsHardforkReached(true);
-      }
+    // Case 1: Hardfork reached normally (block >= target)
+    if (!isLoading && !error && latestBlock && latestBlock >= CONSTANTS.TARGET_BLOCK) {
+      setShowTimers(false);
+      setIsHardforkReached(true);
     }
-  }, [latestBlock, isLoading, error]);
+    
+    // Case 2: RPC is down, which could indicate migration in progress
+    if (isRpcDown) {
+      console.log("RPC is down, setting hardfork as reached");
+      setShowTimers(false);
+      setIsHardforkReached(true);
+    }
+  }, [latestBlock, isLoading, error, isRpcDown]);
 
   // Check IsL2Live flag from Firebase
   useEffect(() => {
@@ -64,10 +70,18 @@ function App() {
     };
   }, [isL2Live, triggerConfetti]);
 
-  const handleBlockUpdate = (block: number | null) => {
+  const handleBlockUpdate = (block: number | null, rpcFailure = false) => {
+    // Case 1: Target block reached
     if (block && block >= CONSTANTS.TARGET_BLOCK) {
       setIsHardforkReached(true);
       triggerConfetti(); // Trigger confetti when target block is reached
+      return;
+    }
+    
+    // Case 2: RPC failure detected
+    if (rpcFailure) {
+      setIsHardforkReached(true);
+      // Note: We don't trigger confetti here as RPC failure doesn't guarantee the hardfork has occurred
     }
   };
 
@@ -108,7 +122,10 @@ function App() {
 
           {/* Show L2 migration stages when hardfork is reached but IsL2Live is false */}
           {isHardforkReached && !isL2Live && (
-            <L2MigrationStage isHardforkReached={isHardforkReached} />
+            <L2MigrationStage 
+              isHardforkReached={isHardforkReached} 
+              isRpcDown={isRpcDown}
+            />
           )}
 
           {/* Show L2 Live message when IsL2Live is true */}

@@ -6,7 +6,7 @@ import { useConfetti } from "../hooks/useConfetti";
 
 interface BlockCountdownTimerProps {
   onTimerEnd?: () => void;
-  onBlockUpdate?: (block: number | null) => void;
+  onBlockUpdate?: (block: number | null, rpcFailure?: boolean) => void;
 }
 
 export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
@@ -30,7 +30,7 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
       try {
         const client = createPublicClient({
           chain: celo,
-          transport: http(),
+          transport: http(CONSTANTS.CUSTOM_RPC_URL),
         });
 
         const blockNumber = await client.getBlockNumber();
@@ -47,11 +47,15 @@ export const BlockCountdownTimer: React.FC<BlockCountdownTimerProps> = ({
 
         setLoading(false);
       } catch (err) {
+        console.error("BlockCountdownTimer RPC Error:", err);
         setError("Failed to fetch block number: " + err);
         setLoading(false);
         setIsCompleted(true);
+        
+        // Report the RPC failure to parent component
+        if (onBlockUpdate) onBlockUpdate(null, true); // Pass true to indicate RPC failure
+        
         if (onTimerEnd) onTimerEnd();
-        if (onBlockUpdate) onBlockUpdate(null);
       }
     };
 
