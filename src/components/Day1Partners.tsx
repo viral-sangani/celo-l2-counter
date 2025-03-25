@@ -37,7 +37,7 @@ export const Day1Partners = () => {
   const pendingColumns = getColumnsData(pendingPartners);
 
   return (
-    <div className="bg-white p-8">
+    <div className="bg-white p-8 border-2 border-gray-200">
       <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
         Day 1 Partners Migration Status
       </h2>
@@ -69,7 +69,7 @@ export const Day1Partners = () => {
       {/* Pending Partners Section */}
       {pendingPartners.length > 0 && (
         <div>
-          <h3 className="text-xl font-bold mb-4 text-[#FFA15F]">
+          <h3 className="text-xl font-bold mb-4 text-[#FFA15F] flex items-center">
             L2 Migration In Progress
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
