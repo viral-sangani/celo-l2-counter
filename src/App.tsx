@@ -67,12 +67,14 @@ function App() {
   const handleBlockUpdate = (block: number | null) => {
     if (block && block >= CONSTANTS.TARGET_BLOCK) {
       setIsHardforkReached(true);
+      triggerConfetti(); // Trigger confetti when target block is reached
     }
   };
 
   const handleTimerEnd = () => {
     setShowTimers(false);
     setIsHardforkReached(true);
+    triggerConfetti(); // Trigger confetti when timer ends
   };
 
   return (
