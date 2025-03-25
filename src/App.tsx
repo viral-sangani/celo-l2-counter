@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { BlockCountdownTimer } from "./components/BlockCountdownTimer";
 import { BlockTimer } from "./components/BlockTimer";
+import { L2MigrationStage } from "./components/L2MigrationStage";
 import { MigrationStages } from "./components/MigrationStages";
 import { CONSTANTS } from "./constants";
 import { database } from "./firebase";
@@ -14,30 +15,74 @@ function App() {
   const { latestBlock, isLoading, error } = useLatestBlock();
   const [stages, setStages] = useState<MigrationStage[]>([]);
   const [showTimers, setShowTimers] = useState(true);
+  const [hardforkReached, setHardforkReached] = useState(false);
+  const [isL2Live, setIsL2Live] = useState(false);
 
   // Check if we need to show the timers based on current block
   useEffect(() => {
     if (!isLoading && !error && latestBlock) {
       if (latestBlock >= CONSTANTS.TARGET_BLOCK) {
         setShowTimers(false);
+        setHardforkReached(true);
       }
     }
   }, [latestBlock, isLoading, error]);
 
+  // Check IsL2Live flag from Firebase
+  useEffect(() => {
+    console.log("App.tsx: Attempting to fetch IsL2Live from Firebase");
+    const isL2LiveRef = ref(database, "IsL2Live");
+
+    const unsubscribeIsL2Live = onValue(isL2LiveRef, (snapshot) => {
+      console.log("App.tsx: IsL2Live snapshot received:", snapshot.exists() ? "Data exists" : "No data");
+      if (snapshot.exists()) {
+        const isLiveValue = snapshot.val();
+        console.log("App.tsx: IsL2Live value:", isLiveValue);
+        
+        // If IsL2Live is a boolean value directly
+        if (typeof isLiveValue === 'boolean') {
+          setIsL2Live(isLiveValue);
+        } 
+        // If IsL2Live is an object with a value property
+        else if (isLiveValue && typeof isLiveValue.value === 'boolean') {
+          setIsL2Live(isLiveValue.value);
+        }
+        // Any other truthy value
+        else if (isLiveValue) {
+          setIsL2Live(true);
+        }
+      }
+    }, (error) => {
+      console.error("App.tsx: Error fetching IsL2Live:", error);
+    });
+
+    return () => {
+      unsubscribeIsL2Live();
+    };
+  }, []);
+
   // Load migration stages from Firebase
   useEffect(() => {
+    console.log("App.tsx: Attempting to fetch migrationStages from Firebase");
     const stagesRef = ref(database, "migrationStages");
     const l2LiveRef = ref(database, "celoL2Live");
 
     const unsubscribeStages = onValue(stagesRef, (snapshot) => {
+      console.log("App.tsx: migrationStages snapshot received:", snapshot.exists() ? "Data exists" : "No data");
       if (snapshot.exists()) {
-        setStages(Object.values(snapshot.val()));
+        const data = snapshot.val();
+        console.log("App.tsx: migrationStages data:", data);
+        setStages(Object.values(data));
       }
+    }, (error) => {
+      console.error("App.tsx: Error fetching migrationStages:", error);
     });
 
     const unsubscribeL2Live = onValue(l2LiveRef, (snapshot) => {
+      console.log("App.tsx: celoL2Live snapshot received:", snapshot.exists() ? "Data exists" : "No data");
       if (snapshot.exists()) {
         const l2LiveData = snapshot.val() as CeloL2Live;
+        console.log("App.tsx: celoL2Live data:", l2LiveData);
         if (l2LiveData.is_live) {
           setStages((prevStages) =>
             prevStages.map((stage) => ({
@@ -47,6 +92,8 @@ function App() {
           );
         }
       }
+    }, (error) => {
+      console.error("App.tsx: Error fetching celoL2Live:", error);
     });
 
     return () => {
@@ -57,6 +104,7 @@ function App() {
 
   const handleTimerEnd = () => {
     setShowTimers(false);
+    setHardforkReached(true);
   };
 
   return (
@@ -109,20 +157,50 @@ function App() {
             </>
           )}
           
-          {/* If timers are hidden, show completion message */}
-          {!showTimers && (
+          {/* Show L2 migration stages when hardfork is reached but IsL2Live is false */}
+          {hardforkReached && !isL2Live && (
+            <>
+              {/* Hardfork reached message */}
+              <div className="bg-[#476520] text-white rounded-lg p-8 shadow-lg text-center">
+                <h2 className="text-2xl font-bold mb-4">
+                  Celo L2 Hardfork Block Reached
+                </h2>
+                <p className="text-lg">
+                  The Celo L2 hardfork block has been reached.
+                  Migration process is now in progress. Follow the steps below.
+                </p>
+              </div>
+              
+              {/* Real-time L2 migration stages */}
+              <L2MigrationStage />
+            </>
+          )}
+
+          {/* Show L2 Live message when IsL2Live is true */}
+          {isL2Live && (
             <div className="bg-[#476520] text-white rounded-lg p-8 shadow-lg text-center">
               <h2 className="text-2xl font-bold mb-4">
-                Celo L2 Hardfork Complete! 🎉
+                Celo L2 Migration Complete! 🎉
               </h2>
               <p className="text-lg">
-                The Celo L2 migration has successfully reached its target block.
-                Celo is now operating as an Ethereum Layer 2!
+                The Celo L2 migration has been successfully completed.
+                Celo is now live as an Ethereum Layer 2!
               </p>
+              <div className="mt-6 flex justify-center">
+                <a 
+                  href="https://explorer.celo.org" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-white text-[#476520] font-bold px-6 py-3 rounded shadow hover:bg-gray-100 transition-colors"
+                >
+                  Explore Celo L2
+                </a>
+              </div>
             </div>
           )}
           
-          <MigrationStages stages={stages} />
+          {/* Only show MigrationStages when IsL2Live is false */}
+          {!isL2Live && <MigrationStages stages={stages} />}
         </div>
 
         <div className="mb-12">
