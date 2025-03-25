@@ -39,7 +39,7 @@ export const Day1Partners = () => {
   return (
     <div className="bg-white p-8 border-2 border-gray-200">
       <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-        Day 1 Partners Migration Status
+        Day 1 Partner Migration Status
       </h2>
 
       {/* Completed Partners Section */}
