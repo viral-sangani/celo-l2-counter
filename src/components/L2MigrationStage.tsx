@@ -112,7 +112,7 @@ export const L2MigrationStage: React.FC<L2MigrationStageProps> = ({
               <div className="text-[#476520]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-6 w-6"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -124,7 +124,9 @@ export const L2MigrationStage: React.FC<L2MigrationStageProps> = ({
                 </svg>
               </div>
             )}
-            <span className="text-gray-700">{stage.name}</span>
+            <span className="text-gray-700 text-lg font-bold">
+              {stage.name}
+            </span>
           </div>
         ))}
       </div>
