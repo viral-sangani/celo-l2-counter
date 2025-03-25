@@ -8,7 +8,7 @@ interface MigrationStagesProps {
 
 export const MigrationStages: React.FC<MigrationStagesProps> = ({ stages }) => {
   return (
-    <div className="bg-white p-8 border-2 border-gray-200">
+    <div className="ceg-white p-8 border-2 border-gray-200 ">
       <h2 className="text-2xl font-bold text-[#476520] mb-6">
         Migration Stages
       </h2>

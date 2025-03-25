@@ -3,19 +3,15 @@ import { useEffect, useState } from "react";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { BlockCountdownTimer } from "./components/BlockCountdownTimer";
 import { L2MigrationStage } from "./components/L2MigrationStage";
-import { MigrationStages } from "./components/MigrationStages";
 import { CONSTANTS } from "./constants";
 import { database } from "./firebase";
 import { useLatestBlock } from "./hooks/useLatestBlock";
-import type { CeloL2Live, MigrationStage } from "./types";
 
 function App() {
   // Use the hook to get the latest block
   const { latestBlock, isLoading, error } = useLatestBlock();
-  const [stages, setStages] = useState<MigrationStage[]>([]);
-  const [currentBlock, setCurrentBlock] = useState<number | null>(null);
   const [showTimers, setShowTimers] = useState(true);
-  const [hardforkReached, setHardforkReached] = useState(false);
+  const [isHardforkReached, setIsHardforkReached] = useState(false);
   const [isL2Live, setIsL2Live] = useState(false);
 
   // Check if we need to show the timers based on current block
@@ -23,113 +19,48 @@ function App() {
     if (!isLoading && !error && latestBlock) {
       if (latestBlock >= CONSTANTS.TARGET_BLOCK) {
         setShowTimers(false);
-        setHardforkReached(true);
+        setIsHardforkReached(true);
       }
     }
   }, [latestBlock, isLoading, error]);
 
   // Check IsL2Live flag from Firebase
   useEffect(() => {
-    console.log("App.tsx: Attempting to fetch IsL2Live from Firebase");
     const isL2LiveRef = ref(database, "IsL2Live");
 
-    const unsubscribeIsL2Live = onValue(
-      isL2LiveRef,
-      (snapshot) => {
-        console.log(
-          "App.tsx: IsL2Live snapshot received:",
-          snapshot.exists() ? "Data exists" : "No data"
-        );
-        if (snapshot.exists()) {
-          const isLiveValue = snapshot.val();
-          console.log("App.tsx: IsL2Live value:", isLiveValue);
+    const unsubscribeIsL2Live = onValue(isL2LiveRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const isLiveValue = snapshot.val();
 
-          // If IsL2Live is a boolean value directly
-          if (typeof isLiveValue === "boolean") {
-            setIsL2Live(isLiveValue);
-          }
-          // If IsL2Live is an object with a value property
-          else if (isLiveValue && typeof isLiveValue.value === "boolean") {
-            setIsL2Live(isLiveValue.value);
-          }
-          // Any other truthy value
-          else if (isLiveValue) {
-            setIsL2Live(true);
-          }
+        // If IsL2Live is a boolean value directly
+        if (typeof isLiveValue === "boolean") {
+          setIsL2Live(isLiveValue);
         }
-      },
-      (error) => {
-        console.error("App.tsx: Error fetching IsL2Live:", error);
+        // If IsL2Live is an object with a value property
+        else if (isLiveValue && typeof isLiveValue.value === "boolean") {
+          setIsL2Live(isLiveValue.value);
+        }
+        // Any other truthy value
+        else if (isLiveValue) {
+          setIsL2Live(true);
+        }
       }
-    );
+    });
 
     return () => {
       unsubscribeIsL2Live();
     };
   }, []);
 
-  // Load migration stages from Firebase
-  useEffect(() => {
-    console.log("App.tsx: Attempting to fetch migrationStages from Firebase");
-    const stagesRef = ref(database, "migrationStages");
-    const l2LiveRef = ref(database, "celoL2Live");
-
-    const unsubscribeStages = onValue(
-      stagesRef,
-      (snapshot) => {
-        console.log(
-          "App.tsx: migrationStages snapshot received:",
-          snapshot.exists() ? "Data exists" : "No data"
-        );
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          console.log("App.tsx: migrationStages data:", data);
-          setStages(Object.values(data));
-        }
-      },
-      (error) => {
-        console.error("App.tsx: Error fetching migrationStages:", error);
-      }
-    );
-
-    const unsubscribeL2Live = onValue(
-      l2LiveRef,
-      (snapshot) => {
-        console.log(
-          "App.tsx: celoL2Live snapshot received:",
-          snapshot.exists() ? "Data exists" : "No data"
-        );
-        if (snapshot.exists()) {
-          const l2LiveData = snapshot.val() as CeloL2Live;
-          console.log("App.tsx: celoL2Live data:", l2LiveData);
-          if (l2LiveData.is_live) {
-            setStages((prevStages) =>
-              prevStages.map((stage) => ({
-                ...stage,
-                status: "Complete",
-              }))
-            );
-          }
-        }
-      },
-      (error) => {
-        console.error("App.tsx: Error fetching celoL2Live:", error);
-      }
-    );
-
-    return () => {
-      unsubscribeStages();
-      unsubscribeL2Live();
-    };
-  }, []);
-
   const handleBlockUpdate = (block: number | null) => {
-    setCurrentBlock(block);
+    if (block && block >= CONSTANTS.TARGET_BLOCK) {
+      setIsHardforkReached(true);
+    }
   };
 
   const handleTimerEnd = () => {
     setShowTimers(false);
-    setHardforkReached(true);
+    setIsHardforkReached(true);
   };
 
   return (
@@ -142,7 +73,7 @@ function App() {
             className="h-16 mx-auto mb-8"
           />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Celo L2 Migration Countdown
+            Celo L2 Migration Status
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Celo is transitioning from a standalone EVM-compatible Layer 1
@@ -154,32 +85,15 @@ function App() {
         <div className="grid gap-8 mb-12">
           {/* Only show timers if not completed */}
           {showTimers && (
-            <>
-              {/* Block Countdown Timer - initial fetch + countdown */}
-              <BlockCountdownTimer
-                onBlockUpdate={handleBlockUpdate}
-                onTimerEnd={handleTimerEnd}
-              />
-            </>
+            <BlockCountdownTimer
+              onBlockUpdate={handleBlockUpdate}
+              onTimerEnd={handleTimerEnd}
+            />
           )}
 
           {/* Show L2 migration stages when hardfork is reached but IsL2Live is false */}
-          {hardforkReached && !isL2Live && (
-            <>
-              {/* Hardfork reached message */}
-              <div className="bg-[#476520] text-white p-8 shadow-lg text-center">
-                <h2 className="text-2xl font-bold mb-4">
-                  Celo L2 Hardfork Block Reached
-                </h2>
-                <p className="text-lg">
-                  The Celo L2 hardfork block has been reached. Migration process
-                  is now in progress. Follow the steps below.
-                </p>
-              </div>
-
-              {/* Real-time L2 migration stages */}
-              <L2MigrationStage />
-            </>
+          {isHardforkReached && !isL2Live && (
+            <L2MigrationStage isHardforkReached={isHardforkReached} />
           )}
 
           {/* Show L2 Live message when IsL2Live is true */}
@@ -204,18 +118,11 @@ function App() {
               </div>
             </div>
           )}
-
-          {/* Only show MigrationStages when IsL2Live is false */}
-          {!isL2Live &&
-            currentBlock &&
-            currentBlock >= CONSTANTS.TARGET_BLOCK && (
-              <MigrationStages stages={stages} />
-            )}
         </div>
 
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-            About Celo L2
+            Benefits of L2 Migration
           </h2>
           <BenefitsSection />
         </div>
